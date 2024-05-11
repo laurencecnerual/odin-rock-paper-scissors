@@ -1,17 +1,17 @@
+// Possible choices
 let errorChoice = "Unexpected Choice";
 let rock = "Rock";
 let paper = "Paper";
 let scissors = "Scissors";
 
+// Possible winners
 let human = "Human";
 let computer = "Computer";
 let tie = "Tie";
 let noContest = "Error";
 
 let humanScore = 0;
-let humanSelection = getHumanChoice();
 let computerScore = 0;
-let computerSelection = getComputerChoice();
 
 // Borrowed from mdn web docs - Returns a random integer between min and max, inclusive
 function getRandomIntInclusive(min, max) {
@@ -43,6 +43,7 @@ function choiceToString(choice) {
     }
 }
 
+// Executes one round of Rock-Paper-Scissors based on input provided
 function playRound(humanChoice, computerChoice) {
     let winner = determineWinner(humanChoice, computerChoice);
     displayResult(winner, humanChoice, computerChoice);
@@ -89,4 +90,31 @@ function awardPoints(winner) {
     }
 }
 
-playRound(humanSelection, computerSelection);
+//Executes a 5 round match of Rock-Paper-Scissors
+function playGame() {
+    for (let i = 0; i < 5; i++) {
+        let humanSelection = getHumanChoice();
+        let computerSelection = getComputerChoice();
+        playRound(humanSelection, computerSelection);
+    }
+
+    displayFinalResult();
+}
+
+//Displays a popup showing the final result and scores
+function displayFinalResult() {
+    let displayMessage;
+    
+    if (humanScore > computerScore) {
+        displayMessage = "Congratulations! You are the Rock-Paper-Scissors champion!";
+    } else if (humanScore == computerScore) {
+        displayMessage = "What a heated battle! It's a tie!";
+    } else {
+        displayMessage = "Better luck next time! The computer has won!";
+    }
+
+    displayMessage += `\nFinal score: ${humanScore} (you) vs. ${computerScore} (the computer)`;
+    alert(displayMessage);
+}
+
+playGame(); // Call to run the game
