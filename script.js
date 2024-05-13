@@ -1,17 +1,22 @@
+const stats = document.querySelector(".stats")
+const buttons = document.querySelectorAll("button");
+
 // Possible choices
-let errorChoice = "Unexpected Choice";
-let rock = "Rock";
-let paper = "Paper";
-let scissors = "Scissors";
+const errorChoice = "Unexpected Choice";
+const rock = "Rock";
+const paper = "Paper";
+const scissors = "Scissors";
 
 // Possible winners
-let human = "Human";
-let computer = "Computer";
-let tie = "Tie";
-let noContest = "Error";
+const human = "Human";
+const computer = "Computer";
+const tie = "Tie";
+const noContest = "Error";
 
 let humanScore = 0;
 let computerScore = 0;
+let roundCount = 1;
+let gameOver = false;
 
 // Borrowed from mdn web docs - Returns a random integer between min and max, inclusive
 function getRandomIntInclusive(min, max) {
@@ -25,9 +30,9 @@ function getComputerChoice() {
     return choiceToString(getRandomIntInclusive(1, 3)); 
 }
 
-// Returns the user's Rock-Paper-Scissor choice as a string (based on user input)
-function getHumanChoice() {
-    return choiceToString(parseInt(prompt("Please choose a number between 1 and 3, where 1 = Rock, 2 = Paper, and 3 = Scissors")));
+// Returns the user's Rock-Paper-Scissor choice as a string (based on the ID of the button the user clicked)
+function getHumanChoice(buttonID) {
+    return choiceToString(parseInt(buttonID));
 }
 
 // Takes a numerical respresentation of choice and returns its Rock-Paper-Scissor equivalent
@@ -45,9 +50,20 @@ function choiceToString(choice) {
 
 // Executes one round of Rock-Paper-Scissors based on input provided
 function playRound(humanChoice, computerChoice) {
-    let winner = determineWinner(humanChoice, computerChoice);
-    displayResult(winner, humanChoice, computerChoice);
-    awardPoints(winner);
+    if (!gameOver) {
+        let winner = determineWinner(humanChoice, computerChoice);
+        awardPoints(winner);
+        displayResult(winner, humanChoice, computerChoice);
+
+        if (humanScore >= 5 || computerScore >= 5) {
+            displayFinalResult();
+            gameOver = true;
+        } else {
+            roundCount++;
+        }
+    } else {
+        displayGameOver();
+    }
 }
 
 // Compares humanChoice and computerChoice and returns the winner
@@ -63,22 +79,30 @@ function determineWinner(humanChoice, computerChoice) {
     }
 }
 
-// Prints to the console who won the round
+// Prints to the webpage who won the round and some accompanying stats
 function displayResult(winner, humanChoice, computerChoice) {
+    let p = document.createElement("p");
+
     switch (winner) {
         case human:
-            console.log(`You win! Your ${humanChoice} beats the computer's ${computerChoice}.`)
+            p.textContent = `You win! Your ${humanChoice} beats the computer's ${computerChoice}.`
+            p.style.color = "green";
             break;
         case computer:
-            console.log(`You lose! The computer's ${computerChoice} beats your ${humanChoice}.`)
+            p.textContent = `You lose! The computer's ${computerChoice} beats your ${humanChoice}.`
+            p.style.color = "red";
             break;
         case tie:
-            console.log(`Draw! You both picked ${humanChoice}.`)
+            p.textContent = `Draw! You both picked ${humanChoice}.`
+            p.style.color = "gray";
             break;
         default:
-            console.log(`Uh oh! Your ${humanChoice} is not a valid choice.`)
+            p.textContent = `Uh oh! Your ${humanChoice} is not a valid choice.`
             break;
     }
+
+    p.textContent += ` [Round ${roundCount} Score: ${humanScore} (you) - ${computerScore} (the computer)]`;
+    stats.appendChild(p);
 }
 
 // Increases the score of the winner where appropriate
@@ -90,31 +114,41 @@ function awardPoints(winner) {
     }
 }
 
-//Executes a 5 round match of Rock-Paper-Scissors
-function playGame() {
-    for (let i = 0; i < 5; i++) {
-        let humanSelection = getHumanChoice();
-        let computerSelection = getComputerChoice();
-        playRound(humanSelection, computerSelection);
-    }
-
-    displayFinalResult();
-}
-
-//Displays a popup showing the final result and scores
+//Displays on screen the final result and scores
 function displayFinalResult() {
-    let displayMessage;
+    let displayMessage = document.createElement("h1");
+    let finalStats = document.createElement("h2");
     
     if (humanScore > computerScore) {
-        displayMessage = "Congratulations! You are the Rock-Paper-Scissors champion!";
+        displayMessage.textContent = "Congratulations! You are the Rock-Paper-Scissors champion!";
     } else if (humanScore == computerScore) {
-        displayMessage = "What a heated battle! It's a tie!";
+        displayMessage.textContent = "What a heated battle! It's a tie!";
     } else {
-        displayMessage = "Better luck next time! The computer has won!";
+        displayMessage.textContent = "Better luck next time! The computer has won!";
     }
 
-    displayMessage += `\nFinal score: ${humanScore} (you) vs. ${computerScore} (the computer)`;
-    alert(displayMessage);
+    displayMessage.style.color = "white";
+    displayMessage.style.backgroundColor = "black";
+
+    finalStats.textContent = `[Final score after ${roundCount} rounds: ${humanScore} (you) vs. ${computerScore} (the computer)]`;
+    finalStats.style.color = "white";
+    finalStats.style.backgroundColor = "black";
+
+
+    stats.appendChild(finalStats);
+    stats.appendChild(displayMessage);
 }
 
-playGame(); // Call to run the game
+function displayGameOver() {
+    let endOfGameMessage = document.createElement("h3");
+    endOfGameMessage.textContent = `Sorry, the game has finished. To play again, please refresh the page.`
+    endOfGameMessage.style.color = "orange";
+    endOfGameMessage.style.fontStyle = "italic";
+    stats.appendChild(endOfGameMessage);
+}
+
+buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      playRound(getHumanChoice(button.id), getComputerChoice());
+    });
+  });
